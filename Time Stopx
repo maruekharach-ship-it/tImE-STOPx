@@ -1,0 +1,91 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local ToggleButton = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
+local UICorner2 = Instance.new("UICorner")
+
+-- ตั้งค่า ScreenGui
+ScreenGui.Name = "TimeStopGUI"
+ScreenGui.Parent = game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- ตัวเรือนหน้าต่าง (Main Frame)
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+MainFrame.Position = UDim2.new(0.5, -100, 0.4, -60)
+MainFrame.Size = UDim2.new(0, 200, 0, 120)
+MainFrame.Active = true
+MainFrame.Draggable = true -- สามารถลากเคลื่อนย้ายได้
+
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- หัวข้อ (Title)
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1.000
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Font = Enum.Font.SourceSansBold
+Title.Text = "Time Stop System"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 18.000
+
+-- ปุ่ม เปิด/ปิด (Toggle Button)
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = MainFrame
+ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.Position = UDim2.new(0.1, 0, 0.45, 0)
+ToggleButton.Size = UDim2.new(0.8, 0, 0, 45)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.Text = "หยุดเวลา : OFF"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 16.000
+
+UICorner2.CornerRadius = UDim.new(0, 6)
+UICorner2.Parent = ToggleButton
+
+---------------------------------------------------------
+-- ระบบหยุดเวลา (Time Stop Logic)
+---------------------------------------------------------
+local isTimeStopped = false
+local LocalPlayer = game.Players.LocalPlayer
+
+local function toggleTimeStop()
+    isTimeStopped = not isTimeStopped
+    
+    if isTimeStopped then
+        -- เปลี่ยนสถานะปุ่มเป็น ON (สีเขียว)
+        ToggleButton.Text = "หยุดเวลา : ON"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        
+        -- ตรึงตำแหน่ง Player/NPC อื่นๆ ทั้งหมดใน Server Client Side
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Humanoid") and obj.Parent ~= LocalPlayer.Character then
+                local root = obj.Parent:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.Anchored = true
+                end
+            end
+        end
+    else
+        -- เปลี่ยนสถานะปุ่มเป็น OFF (สีแดง)
+        ToggleButton.Text = "หยุดเวลา : OFF"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        
+        -- ปลดการตรึงตำแหน่งให้กลับมาขยับได้ปกติ
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Humanoid") and obj.Parent ~= LocalPlayer.Character then
+                local root = obj.Parent:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.Anchored = false
+                end
+            end
+        end
+    end
+end
+
+-- เมื่อคลิกปุ่มให้ทำงานฟังก์ชัน toggleTimeStop
+ToggleButton.MouseButton1Click:Connect(toggleTimeStop)
